@@ -4,6 +4,8 @@ import NewProject from "./components/NewProject";
 import Sidebar from "./components/Sidebar";
 import ProjPage from "./components/ProjPage";
 
+// startNew
+
 function App() {
   const [projs, setProjs] = useState([]);
   const [newClick, setNewClick] = useState(false);
