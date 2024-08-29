@@ -1,54 +1,125 @@
-import { useState } from "react";
-import Empty from "./components/Empty";
-import NewProject from "./components/NewProject";
 import Sidebar from "./components/Sidebar";
-import ProjPage from "./components/ProjPage";
-
-// startNew
+import NewProject from "./components/NewProject";
+import NoProject from "./components/NoProject";
+import { useState } from "react";
+import SelectedProject from "./components/SelectedProject";
 
 function App() {
-  const [projs, setProjs] = useState([]);
-  const [newClick, setNewClick] = useState(false);
-  const [selectedProj, setSelectedProj] = useState(null);
+  const [projectsState, setProjectsState] = useState({
+    selectedProjectId: undefined,
+    projects: [],
+    tasks: [],
+  });
 
-  const handleCreateClick = (e) => {
-    e.preventDefault();
-    setNewClick(true);
+  function handleAddTask(text) {
+    setProjectsState((prevState) => {
+      const taskID = Math.random();
+      const newTask = {
+        text: text,
+        projectId: prevState.selectedProjectId,
+        id: taskID,
+      };
+      return {
+        ...prevState,
+        tasks: [...prevState.tasks, newTask],
+      };
+    });
+  }
+
+  function handleDeleteTask(id) {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        tasks: prevState.tasks.filter(
+          (task) => task.id !== id
+        ),
+      };
+    });
+  }
+
+  function handleSelectProject(id) {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        selectedProjectId: id,
+      };
+    });
+  }
+
+  const handleStartAddProject = () => {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        selectedProjectId: null,
+      };
+    });
   };
 
-  const handleCancel = () => {
-    setNewClick(false);
-  };
+  function handleCancel() {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        selectedProjectId: undefined,
+      };
+    });
+  }
 
-  const handleAdd = (newProject) => {
-    setProjs([...projs, newProject]);
-    console.log(projs);
-    setNewClick(false);
-  };
+  function handleDelete() {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        selectedProjectId: undefined,
+        projects: prevState.projects.filter(
+          (project) => project.id !== prevState.selectedProjectId
+        ),
+      };
+    });
+  }
 
-  const handleProjSelect = (proj) => {
-    setSelectedProj(proj);
-  };
+  function handelAddProject(projectData) {
+    setProjectsState((prevState) => {
+      const projectID = Math.random();
+      const nuProject = {
+        ...projectData,
+        id: projectID,
+      };
+      return {
+        ...prevState,
+        selectedProjectId: undefined,
+        projects: [...prevState.projects, nuProject],
+      };
+    });
+  }
+
+  const selectedProject = projectsState.projects.find(
+    (project) => project.id === projectsState.selectedProjectId
+  );
+
+  let content = (
+    <SelectedProject
+      project={selectedProject}
+      onDelte={handleDelete}
+      onAddTask={handleAddTask}
+      onDelTask={handleDeleteTask}
+      tasks={projectsState.tasks}
+    />
+  );
+
+  if (projectsState.selectedProjectId === null) {
+    content = <NewProject onAdd={handelAddProject} onCancel={handleCancel} />;
+  } else if (projectsState.selectedProjectId === undefined) {
+    content = <NoProject onStartAddProject={handleStartAddProject} />;
+  }
 
   return (
-    <>
-      <div className="flex flex-row">
-        <Sidebar
-          createProject={handleCreateClick}
-          list={projs}
-          onSelect={handleProjSelect}
-        />
-        <div className="flex justify-center">
-          {selectedProj ? (
-            <ProjPage title={selectedProj.title} description={selectedProj.description} date={selectedProj.date} />
-          ) : newClick ? (
-            <NewProject cancelProj={handleCancel} onSave={handleAdd} />
-          ) : (
-            <Empty createNewProject={handleCreateClick} />
-          )}
-        </div>
-      </div>
-    </>
+    <main className="h-screen my-8 flex gap-8">
+      <Sidebar
+        onStartAddProject={handleStartAddProject}
+        projects={projectsState.projects}
+        onSelect={handleSelectProject}
+      />
+      {content}
+    </main>
   );
 }
 

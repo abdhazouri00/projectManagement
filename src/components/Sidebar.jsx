@@ -1,39 +1,39 @@
-function Sidebar({ createProject, list, onSelect }) {
-  const selectProj = (e) => {
-    onSelect(e);
-  };
+import Button from "./Button";
+
+function Sidebar({ onStartAddProject, projects, onSelect , selectedProjectID }) {
   return (
     <>
-      <div className="h-screen w-64 bg-black text-white flex flex-col items-center">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold">Your Projects</h1>
+      <aside className="w-1/3 px-8 py-16 bg-stone-900 text-stone-50 md:w-72 rounded-r-xl">
+        <h2 className="mb-8 font-bold uppercase md:text-xl text-stone-200">
+          Your Projects
+        </h2>
+        <div>
+          <Button onClick={onStartAddProject} children={"+Add Project"} />
         </div>
-        <nav className="mt-10">
-          <button
-            className="bg-gray-600 text-white font-bold py-2 px-4 rounded"
-            onClick={createProject}
-          >
-            +Add Project
-          </button>
-        </nav>
-        <div className="mt-10 space-y-2">
-          {list.length > 0 ? (
-            list.map((listItem, index) => (
-              <button
-                key={index}
-                className="bg-gray-700 text-white py-2 px-4 rounded w-full text-left"
-                onClick={() => {
-                  selectProj(listItem);
-                }}
-              >
-                {listItem.title}
-              </button>
-            ))
-          ) : (
-            <p className="text-gray-400">No projects available</p>
-          )}
-        </div>
-      </div>
+        <ul className="mt-8">
+          {projects.map((project) => {
+            let cssClasses =
+              "w-full text-left px-2 py-1 rounded-sm my-1  hover:text-stone-200 hover:bg-stone-800";
+            
+            if (project.id === selectedProjectID) {
+              cssClasses += 'bg-stone-800 text-stone-200'
+            } else {
+              cssClasses += 'text-stone-400'
+            }
+
+            return (
+              <li key={project.id}>
+                <button
+                  className={cssClasses}
+                  onClick={() => { onSelect(project.id) }}
+                >
+                  {project.title}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </aside>
     </>
   );
 }
